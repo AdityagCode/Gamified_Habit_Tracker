@@ -4,7 +4,7 @@ A Django web app that helps users build habits, quit bad habits, track progress 
 
 ## Features
 - Create habits
-- Qit unwanted habits
+- Quit unwanted habits
 - Track daily/weekly progress
 - Earn points and unlock badges
 - Dashboard with progress bars
