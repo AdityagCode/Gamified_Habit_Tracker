@@ -3,12 +3,35 @@ from django.contrib.auth.decorators import login_required
 from .models import Habit, HabitEntry
 from django.utils import timezone
 from django.contrib import messages
+from datetime import timedelta
 
 @login_required
 def dashboard(request):
     habits = Habit.objects.filter(user=request.user).prefetch_related('entries')
     today = timezone.localdate()
-    return render(request, "home.html", {"habits": habits, "today": today})
+
+    # 🧮 Calculate total points
+    total_points = sum(habit.points for habit in habits)
+
+    # 🎯 Calculate level (example: every 100 points = 1 level)
+    level = total_points // 100 + 1
+    progress_to_next = total_points % 100  # remainder for progress bar
+
+    # 📅 Weekly range
+    #from datetime import timedelta
+    week_days = [today - timedelta(days=i) for i in range(6, -1, -1)]
+    next_level_points = 100 - progress_to_next
+
+    return render(request, "home.html", {
+        "habits": habits,
+        "today": today,
+        "week_days": week_days,
+        "total_points": total_points,
+        "level": level,
+        "progress_to_next": progress_to_next,
+        "next_level_points": next_level_points, 
+    })
+
 
 @login_required
 def create_habit(request):
