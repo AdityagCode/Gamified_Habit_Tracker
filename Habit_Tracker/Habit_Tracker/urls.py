@@ -6,4 +6,10 @@ urlpatterns = [
     path("", include("myapp.urls")),
     #path("accounts/", include("django.contrib.auth.urls")),
     path("accounts/", include("accounts.urls")), # login/logout templates
+    #path("chatbot/", include("chatbot.urls")),
+    
+path("chat/", include("chatbot.urls")),
+
 ]
+
+#chatbot/chat/
