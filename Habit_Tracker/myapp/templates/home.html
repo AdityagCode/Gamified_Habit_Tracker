@@ -1,76 +1,194 @@
 {% load static %}
 {% load habit_extras %}
 
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Dashboard</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HabitMaster — Dashboard</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      background: linear-gradient(-45deg, #000000, #1a1a1a, #2b2b2b, #3a3a3a);
+      background-size: 400% 400%;
+      animation: gradientMove 10s ease infinite;
+      font-family: 'Poppins', sans-serif;
+      color: #fff;
+      padding: 40px;
+      min-height: 100vh;
+    }
+
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .navbar-brand {
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: #9b9bff !important;
+      letter-spacing: 1px;
+    }
+
+    .level-card {
+      background: rgba(30,30,30,0.95);
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(255,255,255,0.08);
+      backdrop-filter: blur(10px);
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .progress {
+      height: 15px;
+      border-radius: 10px;
+    }
+
+    .progress-bar {
+      background: linear-gradient(90deg, #6c63ff, #9b9bff);
+    }
+
+    .btn-create {
+      background: linear-gradient(90deg, #6c63ff, #9b9bff);
+      color: #fff;
+      font-weight: 500;
+      border-radius: 10px;
+      border: none;
+      padding: 10px 20px;
+      transition: 0.3s;
+    }
+    .btn-create:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px #9b9bff60;
+    }
+
+    .habit-card {
+      background: rgba(35,35,35,0.95);
+      border: none;
+      border-radius: 15px;
+      box-shadow: 0 0 15px rgba(255,255,255,0.05);
+      color: #fff;
+      padding: 20px;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    .badge {
+      font-size: 0.9rem;
+    }
+  </style>
 </head>
-<body class="p-4">
+
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar mb-5">
+    <div class="container-fluid">
+      <a class="navbar-brand">HabitMaster</a>
+    </div>
+  </nav>
+
   <div class="container">
-    <h1>Hi, {{ request.user.username }} — Your Habits</h1>
-    <div class="card mb-4 text-center p-3 bg-dark text-light">
-  <h2>🏆 Level {{ level }}</h2>
-  <h5>Total Points: {{ total_points }}</h5>
 
-  <div class="progress mt-2" style="height: 20px;">
-    <div class="progress-bar bg-warning" role="progressbar"
-         style="width: {{ progress_to_next }}%;"
-         aria-valuenow="{{ progress_to_next }}" aria-valuemin="0" aria-valuemax="100">
-      {{ progress_to_next }}%
+    <h1 class="fw-bold mb-4">Hi, {{ request.user.username }} — Your Habits</h1>
+
+    <!-- LEVEL CARD -->
+    <div class="level-card mb-4 text-center">
+      <h2>🏆 Level {{ level }}</h2>
+      <h5 class="text-secondary">Total Points: {{ total_points }}</h5>
+
+      <div class="progress mt-3">
+        <div class="progress-bar"
+             style="width: {{ progress_to_next }}%;"
+             aria-valuenow="{{ progress_to_next }}" aria-valuemin="0" aria-valuemax="100">
+        </div>
+      </div>
+
+      <small class="text-light d-block mt-2">
+        Next level in {{ next_level_points }} pts
+      </small>
     </div>
-  </div>
 
-<small class="text-light">Next level in {{ next_level_points }} pts</small>
+    <!-- CREATE BUTTON -->
+    <a class="btn btn-create mb-4" href="{% url 'create_habit' %}">
+      + Create Habit
+    </a>
+
+    <a href="chat/" 
+   style="
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    background: linear-gradient(90deg, #6c63ff, #9b9bff);
+    color: #fff;
+    padding: 15px 22px;
+    border-radius: 50px;
+    box-shadow: 0 0 15px #9b9bff60;
+    text-decoration: none;
+    font-weight: 600;
+    transition: 0.3s;
+   ">
+  💬 Chatbot
+</a>
 
 
-</div>
 
-    <a class="btn btn-primary mb-3" href="{% url 'create_habit' %}">Create Habit</a>
-
+    <!-- HABIT LIST -->
     {% for habit in habits %}
-     <div class="card mb-2">
-  <div class="card-body">
-    <h5>{{ habit.title }}</h5>
-    <p class="mb-0">{{ habit.description }}</p>
-    <small>Points: {{ habit.points }}</small>
-    
-    <hr>
-    <div class="d-flex justify-content-between text-center">
-      {% for day in week_days %}
-        {% with habit.entries.all|get_entry_for_date:day as entry %}
-          <div style="width: 13%;">
-            <small>{{ day|date:"D" }}</small><br>
-            {% if entry and entry.done %}
-              <span class="badge bg-success">✓</span>
+    <div class="habit-card mb-3">
+
+      <h4 class="fw-semibold">{{ habit.title }}</h4>
+      <p class="mb-1 text-secondary">{{ habit.description }}</p>
+      <small>Points: {{ habit.points }}</small>
+
+      <hr class="border-secondary">
+
+      <!-- WEEKLY TRACKER -->
+      <div class="d-flex justify-content-between text-center">
+        {% for day in week_days %}
+          {% with habit.entries.all|get_entry_for_date:day as entry %}
+            <div style="width: 13%;">
+              <small>{{ day|date:"D" }}</small><br>
+              {% if entry and entry.done %}
+                <span class="badge bg-success">✓</span>
+              {% else %}
+                <span class="badge bg-secondary">✗</span>
+              {% endif %}
+            </div>
+          {% endwith %}
+        {% endfor %}
+      </div>
+
+      <!-- MARK TODAY -->
+      <div class="mt-3 text-end">
+        <form method="post" action="{% url 'toggle_done' habit.id %}">
+          {% csrf_token %}
+          {% with habit.entries.all|get_entry_for_date:today as today_entry %}
+            {% if today_entry and today_entry.done %}
+              <button class="btn btn-success">Done Today ✓</button>
             {% else %}
-              <span class="badge bg-secondary">✗</span>
+              <button class="btn btn-outline-light">Mark Done Today</button>
             {% endif %}
-          </div>
-        {% endwith %}
-      {% endfor %}
-    </div>
+          {% endwith %}
+        </form>
+      </div>
 
-    <div class="mt-2 text-end">
-      <form method="post" action="{% url 'toggle_done' habit.id %}">
-        {% csrf_token %}
-        {% with habit.entries.all|get_entry_for_date:today as today_entry %}
-          {% if today_entry and today_entry.done %}
-            <button class="btn btn-success">Done Today ✓</button>
-          {% else %}
-            <button class="btn btn-outline-secondary">Mark Done Today</button>
-          {% endif %}
-        {% endwith %}
-      </form>
     </div>
-  </div>
-</div>
-
     {% empty %}
-      <p>No habits yet — create your first one.</p>
+      <p class="text-light">No habits yet — create your first one.</p>
     {% endfor %}
+
   </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>
