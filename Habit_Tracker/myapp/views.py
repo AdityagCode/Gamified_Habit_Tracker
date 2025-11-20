@@ -77,7 +77,8 @@ def admin_dashboard(request):
     total_entries = HabitEntry.objects.count()
     completed_entries = HabitEntry.objects.filter(done=True).count()
 
-    latest_habits = Habit.objects.order_by('-created_at')[:5]
+    latest_habits = Habit.objects.order_by('-created_at')
+
 
     context = {
         "total_users": total_users,
