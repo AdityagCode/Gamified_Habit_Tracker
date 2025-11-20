@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-dark bg-dark px-4">
+    <span class="navbar-brand">Habit Tracker Admin Dashboard</span>
+</nav>
+
+<div class="container py-4">
+
+    <h2 class="mb-4">Overview</h2>
+
+    <div class="row g-3">
+
+        <div class="col-md-3">
+            <div class="card text-white bg-primary shadow">
+                <div class="card-body">
+                    <h4>{{ total_users }}</h4>
+                    <p>Total Users</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-white bg-success shadow">
+                <div class="card-body">
+                    <h4>{{ total_habits }}</h4>
+                    <p>Total Habits</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-white bg-warning shadow">
+                <div class="card-body">
+                    <h4>{{ total_entries }}</h4>
+                    <p>Total Habit Entries</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-white bg-info shadow">
+                <div class="card-body">
+                    <h4>{{ completed_entries }}</h4>
+                    <p>Completed Entries</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <hr class="my-4">
+
+    <h3>Latest Habits</h3>
+
+    <table class="table table-bordered bg-white shadow">
+        <thead class="table-dark">
+            <tr>
+                <th>User</th>
+                <th>Habit</th>
+                <th>Created At</th>
+                <th>Points</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for habit in latest_habits %}
+            <tr>
+                <td>{{ habit.user.username }}</td>
+                <td>{{ habit.title }}</td>
+                <td>{{ habit.created_at }}</td>
+                <td>{{ habit.points }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" class="text-center">No habits yet.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+</body>
+</html>
