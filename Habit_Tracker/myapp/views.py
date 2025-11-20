@@ -4,6 +4,9 @@ from .models import Habit, HabitEntry
 from django.utils import timezone
 from django.contrib import messages
 from datetime import timedelta
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 @login_required
 def dashboard(request):
@@ -60,3 +63,27 @@ def toggle_done(request, habit_id):
     entry.save()
     habit.save()
     return redirect("dashboard")
+
+@login_required(login_url='/accounts/login/')
+def admin_dashboard(request):
+
+    # Allow only superusers
+    if not request.user.is_superuser:
+        messages.error(request, "You are not authorized to access the admin dashboard.")
+        return redirect('/')
+
+    total_users = User.objects.count()
+    total_habits = Habit.objects.count()
+    total_entries = HabitEntry.objects.count()
+    completed_entries = HabitEntry.objects.filter(done=True).count()
+
+    latest_habits = Habit.objects.order_by('-created_at')[:5]
+
+    context = {
+        "total_users": total_users,
+        "total_habits": total_habits,
+        "total_entries": total_entries,
+        "completed_entries": completed_entries,
+        "latest_habits": latest_habits
+    }
+    return render(request, "admin_dashboard.html", context)
