@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>HabitMate</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    /* Smooth fade animation */
+    .fade-in {
+      animation: fadeIn 0.4s ease forwards;
+      opacity: 0;
+    }
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+  </style>
+</head>
+
+<body class="bg-gradient-to-br from-black via-gray-900 to-black h-screen flex items-center justify-center">
+
+  <!-- Chat Container -->
+  <div class="w-full max-w-md h-[90vh] bg-gray-900/80 backdrop-blur-xl shadow-2xl rounded-3xl flex flex-col overflow-hidden border border-gray-700">
+
+    <!-- Header -->
+    <header class="p-4 flex items-center space-x-3 bg-gray-900 border-b border-gray-700">
+      <img src="https://i.ibb.co/CJr9qgK/image-not-found.png" class="w-12 h-12 rounded-full border border-gray-600">
+      <div>
+        <h1 class="text-white text-lg font-bold">HabitMate</h1>
+        <p class="text-green-400 text-sm -mt-1">Your Habit Building AI Coach</p>
+      </div>
+    </header>
+
+    <!-- Chat Area -->
+    <main id="chat-box" class="flex-1 overflow-y-auto p-4 space-y-4">
+
+      <!-- Bot Welcome Message -->
+      <div class="flex items-start space-x-2 fade-in">
+        <div class="w-8 h-8 flex items-center justify-center rounded-full bg-green-600 text-white">🤖</div>
+
+        <div class="bg-green-700 text-white px-4 py-3 rounded-2xl rounded-bl-sm shadow-md max-w-[80%]">
+          👋 Hi! I'm HabitMate — your personal habit-building assistant.  
+          Tell me what habit you want to build today 😄
+        </div>
+      </div>
+
+    </main>
+
+    <!-- Input Area -->
+    <footer class="p-4 bg-gray-900 border-t border-gray-700 flex space-x-2">
+      <input id="user-input"
+             class="flex-1 bg-gray-800 text-gray-200 px-4 py-3 rounded-2xl border border-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400"
+             placeholder="Type your message...">
+
+      <button id="send-btn"
+              class="bg-green-500 hover:bg-green-600 text-black font-semibold px-6 py-3 rounded-2xl transition-all shadow">
+        Send
+      </button>
+    </footer>
+
+  </div>
+
+  <script>
+    const chatBox = document.getElementById("chat-box");
+    const userInput = document.getElementById("user-input");
+    const sendBtn = document.getElementById("send-btn");
+
+    function addMessage(text, sender) {
+      const wrapper = document.createElement("div");
+      wrapper.classList.add("flex", "items-start", "space-x-2", "fade-in");
+
+      const avatar = document.createElement("div");
+      avatar.classList.add("w-8", "h-8", "flex", "items-center", "justify-center", "rounded-full");
+
+      const bubble = document.createElement("div");
+      bubble.classList.add("px-4", "py-3", "rounded-2xl", "shadow-md", "max-w-[80%]");
+
+      // User message styling
+      if (sender === "user") {
+        wrapper.classList.add("justify-end", "space-x-reverse");
+        avatar.classList.add("bg-gray-600", "text-white");
+        avatar.textContent = "🧑";
+
+        bubble.classList.add("bg-gray-700", "text-gray-100", "rounded-br-sm");
+      }
+
+      // Bot message styling  
+      else {
+        avatar.classList.add("bg-green-600", "text-white");
+        avatar.textContent = "🤖";
+
+        bubble.classList.add("bg-green-700", "text-white", "rounded-bl-sm");
+      }
+
+      bubble.innerText = text;
+
+      wrapper.appendChild(avatar);
+      wrapper.appendChild(bubble);
+      chatBox.appendChild(wrapper);
+
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    async function sendMessage() {
+      const message = userInput.value.trim();
+      if (!message) return;
+
+      addMessage(message, "user");
+      userInput.value = "";
+
+      try {
+        const response = await fetch(window.location.href, {
+          method: "POST",
+          headers: {
+            "X-Requested-With": "XMLHttpRequest",
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: new URLSearchParams({ message }),
+        });
+
+        const data = await response.json();
+
+        if (data.reply) {
+          addMessage(data.reply, "bot");
+        } else {
+          addMessage("⚠️ Error: " + (data.error || "Unknown error"), "bot");
+        }
+
+      } catch (error) {
+        addMessage("⚠️ Network error", "bot");
+      }
+    }
+
+    sendBtn.addEventListener("click", sendMessage);
+    userInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") sendMessage();
+    });
+  </script>
+
+</body>
+</html>
